@@ -1,0 +1,33 @@
+#!/usr/bin/env php
+<?php
+
+error_reporting(E_ERROR | E_WARNING | E_PARSE);
+
+function includeIfExists($file)
+{
+    return file_exists($file) ? include $file : null;
+}
+
+$autoloads = array(
+    sprintf('%s/../../../autoload.php', __DIR__),
+    sprintf('%s/../vendor/autoload.php', __DIR__),
+    sprintf('%s/../autoload.php', __DIR__),
+);
+
+$loaded = false;
+
+foreach ($autoloads as $autoload) {
+    $loaded = null === includeIfExists($autoload) ? $loaded : true;
+
+    if (true === $loaded) {
+        break;
+    }
+}
+
+if (false === $loaded) {
+    throw new \Exception('Can\'t find autoload');
+}
+
+$application = new Symfony\Component\Console\Application();
+$application->add(new Michel\Command());
+$application->run();
